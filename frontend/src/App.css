@@ -1,0 +1,132 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+html {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background-color: #081313;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+}
+
+#root {
+  width: 100%;
+    height: 100%;
+}
+
+.letterTile {
+
+  position:relative;
+  display: inline-block;
+  padding:10px;
+  height: 20px;
+  width: 20px;
+  z-index: 9;
+  background-color: #f1f1f1;
+  text-align: center;
+  border: 2px solid #701659;
+  user-select: none;
+  box-shadow: 4px 4px 4px 0px rgb(0 0 0 / 69%);
+  left: -2px;
+  top: -13px;
+  font-size: 15px;
+}
+
+.letterTileTopFix {
+  top: -27px;
+}
+
+.letterTileOnHand {
+  top: 4px;
+}
+
+.letterPoint {
+	font-size: 11px;
+    position: absolute;
+    bottom: 1px;
+    right: 4px;
+}
+.grid-item {
+  background-color: rgb(27 108 7 / 65%);
+  border: 1px solid rgb(221 218 218 / 96%);
+  text-align: center;
+  padding: 4px;
+  width: 38px;
+  height: 38px;
+  user-select: none;
+}
+
+.grid-item-double-word {
+
+	background-color: #ffc0cb7a;
+}
+.grid-item-double-word:before{
+	
+	content: '2xWord';
+	font-size:11px;
+}
+.grid-item-triple-word {
+
+	background-color: red;
+}
+.grid-item-double-letter {
+
+	background-color: cyan;
+}
+.grid-item-triple-letter {
+
+	background-color: blue;
+}
+.grid-item-center {
+
+	background-color: red;
+}
+.grid-item-highlight {
+	
+	background-color: cyan;
+}
