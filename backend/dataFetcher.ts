@@ -38,7 +38,8 @@ const initBrowser = async () => {
 
     await browserPage.$$eval('button', buttons => {
         const button = buttons[3] as HTMLButtonElement;
-        button.click();
+        if( button )
+            button.click();
     });
 }
 
