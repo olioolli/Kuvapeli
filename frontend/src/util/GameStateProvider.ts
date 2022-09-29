@@ -30,7 +30,7 @@ export const useGameState = () => {
     }
 
     const sendGameStateToBE = async (state: GameState) => {
-        const resp = await axios.post(BE_URL + "/game", { game: state });
+        const resp = await axios.post(BE_URL + "/game", { game: state, player: getCurrentPlayerName() });
         setGameState(resp.data);
     };
 

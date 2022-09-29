@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { KeyboardEvent, useState } from 'react';
 import styled from 'styled-components';
 
 export type LetterSelectComponentProps = {
@@ -14,7 +14,9 @@ export const LetterSelectComponent = (props : LetterSelectComponentProps) => {
         setSelectedWord(event.target.value.toUpperCase());
     }
 
-    const handleQuessWordClicked = () => {
+    const handleKeyPress = (event : KeyboardEvent) => {
+        if( event.code !== 'Enter' && event.code !== 'NumpadEnter') return;
+
         if( selectedWord !== '' ) {
             props.revealWord(selectedWord);
             setSelectedWord('');
@@ -24,8 +26,7 @@ export const LetterSelectComponent = (props : LetterSelectComponentProps) => {
     return (
         <LetterSelectMainDiv>
             <HorizontalLayout>
-                <WordInput onInput={ handleWordInputValueChange } value={selectedWord}></WordInput>
-                <Button disabled={props.isEnabled} onClick={ handleQuessWordClicked }>Quess</Button>
+                <WordInput placeholder={'Enter quess..'} onKeyPress={handleKeyPress} onInput={ handleWordInputValueChange } value={selectedWord}></WordInput>
             </HorizontalLayout>
         </LetterSelectMainDiv>
     );
@@ -40,7 +41,7 @@ const LetterSelectMainDiv = styled.div`
     background: #c3bbbb;
     display: flex;
     flex-direction: column;
-    margin-top:25px;
+    margin-top:5px;
 `;
 
 const WordInput = styled.input`
@@ -50,6 +51,10 @@ const WordInput = styled.input`
     border: 1px solid #d1bcbc;
     border-radius: 5px;
     resize: none;
+    &::placeholder {
+        padding-left: 10px;
+    }
+    padding-left: 10px;
 `;
 
 const Button = styled.button`

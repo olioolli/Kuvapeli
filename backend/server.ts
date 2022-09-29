@@ -132,8 +132,29 @@ app.get("/isLoggedIn", (req, res) => {
     }
 });
 
+const updateGameState = (newState : GameState, sendingPlayerName : string) => {
+    if( gameState.isRoundDone && !newState.isRoundDone )
+        newState.isRoundDone = true;
+
+    const newQuesses = newState.previousQuesses.filter( (newQuess) => {
+        return gameState.previousQuesses.findIndex( quess => quess.player === newQuess.player && quess.text === newQuess.text ) === -1;
+    });
+
+    gameState.previousQuesses = gameState.previousQuesses.concat(newQuesses);
+
+    const sendingPlayerState = newState.playerStates.filter( state => state.name === sendingPlayerName)[0];
+    const playerStateIdx = gameState.playerStates.findIndex( state => state.name === sendingPlayerName)
+    gameState.playerStates[playerStateIdx] = sendingPlayerState;
+
+    gameState.isRoundDone = newState.isRoundDone;
+
+};
+
 app.post("/game", (req, res) => {
-    gameState = req.body.game;
+    const newGameState = req.body.game;
+    const sendingPlayerName = req.body.player;
+    updateGameState(newGameState, sendingPlayerName);
+
     if (isAllPlayerDone())
         handleStartNextRound();
 

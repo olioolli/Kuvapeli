@@ -3,15 +3,21 @@ import styled from 'styled-components';
 
 export type WordComponentProps = {
     imageUrls : string[];
+    imageClicked: (string) => void;
 }
 
 export const ImageComponent = (props: WordComponentProps) => {
+
+    const handleImageClick = (event : MouseEvent) => {
+        const targetImage = event.target as HTMLImageElement;
+        props.imageClicked(targetImage.src);
+    };
 
     return (
         <MainDiv>
             {
                 props.imageUrls.map( url => (
-                    <Image src={url}></Image>
+                    <Image onClick={handleImageClick} src={url}></Image>
                 ))
             }
         </MainDiv>
@@ -27,6 +33,6 @@ const MainDiv = styled.div`
 `;
 
 const Image = styled.img`
-    width: 200px;
-    height: 200px;
+    width: 300px;
+    height: 300px;
 `;

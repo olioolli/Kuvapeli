@@ -4,6 +4,7 @@ import { useGameState } from '../util/GameStateProvider';
 import { getCurrentPlayerName } from '../util/utils';
 import { ChatComponent } from './ChatComponent';
 import { ImageComponent } from './ImageComponent';
+import { ImageWindow } from './ImageWindow';
 import { LetterSelectComponent } from './LetterSelectComponent';
 import { PlayerInfo } from './PlayerInfoComponent';
 import { WordComponent } from './WordComponent';
@@ -11,6 +12,7 @@ import { WordComponent } from './WordComponent';
 export const MainView = () => {
 
     const { gameState, updateGameState, setPlayerDone } = useGameState();
+    const [ zoomedImgUrl, setZoomedImgUrl ] = useState<string|undefined>();
 
     const getRevealedBestQuess = () => {
         let bestQuess : string | undefined = undefined;
@@ -53,6 +55,14 @@ export const MainView = () => {
         return str1.toLowerCase() === str2.toLowerCase();
     }
 
+    const handleImageDoubleClick = (imageSrc: string) => {
+        setZoomedImgUrl(imageSrc);
+    }
+
+    const handleImageSingleClick = () => {
+        setZoomedImgUrl(undefined);
+    }
+
     return (
         <MainDiv>
             <WordComponent
@@ -60,10 +70,13 @@ export const MainView = () => {
                 isSolved={gameState.isRoundDone}
                 okClicked={setPlayerDone}></WordComponent>
             <HorizontalDiv>
-                <ImageComponent imageUrls={gameState.imagesUrls}></ImageComponent>
-                <ChatComponent previousQuesses={gameState.previousQuesses}></ChatComponent>
+                <ImageComponent imageClicked={handleImageDoubleClick} imageUrls={gameState.imagesUrls}></ImageComponent>
+                <VerticalLayout>
+                    <ChatComponent previousQuesses={gameState.previousQuesses}></ChatComponent>
+                    <LetterSelectComponent revealWord={(quess) => handleNewQuess(quess)} isEnabled={gameState.isRoundDone}></LetterSelectComponent>
+                </VerticalLayout>
             </HorizontalDiv>
-            <LetterSelectComponent revealWord={(quess) => handleNewQuess(quess)} isEnabled={gameState.isRoundDone}></LetterSelectComponent>
+            
             <PlayerInfoContainer>
                 {
                     gameState.playerStates.map( playerState => (
@@ -71,19 +84,30 @@ export const MainView = () => {
                     ))
                 }
             </PlayerInfoContainer>
+            {zoomedImgUrl ? <ImageWindow imageClicked={handleImageSingleClick} imageSrc={zoomedImgUrl}></ImageWindow> : <></>}
         </MainDiv>
     );
 }
 
 const MainDiv = styled.div`
-display: flex;
+    display: flex;
     flex-direction: column;
     align-items: center;
+    height: 90%;
+    justify-content: center;
 `;
 
 const HorizontalDiv = styled.div`
-display: flex;
+    display: flex;
     flex-direction: row;
+    height: 100%;
+    margin-top:10px;
+`;
+
+const VerticalLayout = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
 `;
 
 const PlayerInfoContainer = styled.div`
