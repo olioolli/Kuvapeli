@@ -35,4 +35,8 @@ const MainDiv = styled.div`
 const Image = styled.img`
     width: 300px;
     height: 300px;
+
+    &:hover {
+        opacity:0.8;
+    }
 `;
