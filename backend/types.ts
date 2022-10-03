@@ -2,6 +2,7 @@ export type PlayerState = {
     name: string;
     points: number;
     isDone: false;
+    isConceded: false;
 }
 
 export type PreviousQuess = {
@@ -22,13 +23,13 @@ export type WordImagePuzzle = {
     imageUrls : string[]
 };
 
-export const createGameState = (puzzle : WordImagePuzzle, playerStates : PlayerState[]) : GameState => {
+export const createGameState = (puzzle : WordImagePuzzle | undefined, playerStates : PlayerState[]) : GameState => {
     
     return {
-        word: puzzle.word,
+        word: puzzle ? puzzle.word : '',
         playerStates : playerStates,
         isRoundDone: false,
-        imagesUrls : puzzle.imageUrls,
+        imagesUrls : puzzle ? puzzle.imageUrls : [],
         previousQuesses: [],
     };
 }

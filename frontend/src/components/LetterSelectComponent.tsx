@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 export type LetterSelectComponentProps = {
     revealWord : (string) => void;
-    isEnabled: boolean
+    isDisabled: boolean
 };
 
 export const LetterSelectComponent = (props : LetterSelectComponentProps) => {
@@ -26,7 +26,7 @@ export const LetterSelectComponent = (props : LetterSelectComponentProps) => {
     return (
         <LetterSelectMainDiv>
             <HorizontalLayout>
-                <WordInput placeholder={'Enter quess..'} onKeyPress={handleKeyPress} onInput={ handleWordInputValueChange } value={selectedWord}></WordInput>
+                <WordInput disabled={props.isDisabled} placeholder={'Enter quess..'} onKeyPress={handleKeyPress} onInput={ handleWordInputValueChange } value={selectedWord}></WordInput>
             </HorizontalLayout>
         </LetterSelectMainDiv>
     );
@@ -55,6 +55,7 @@ const WordInput = styled.input`
         padding-left: 10px;
     }
     padding-left: 10px;
+    width: 100%;
 `;
 
 const Button = styled.button`

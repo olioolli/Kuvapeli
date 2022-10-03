@@ -11,48 +11,43 @@ import { WordComponent } from './WordComponent';
 
 export const MainView = () => {
 
-    const { gameState, updateGameState, setPlayerDone } = useGameState();
-    const [ zoomedImgUrl, setZoomedImgUrl ] = useState<string|undefined>();
+    const { gameState, updateGameState, setPlayerDone, setPlayerConceded } = useGameState();
+    const [zoomedImgUrl, setZoomedImgUrl] = useState<string | undefined>();
 
     const getRevealedBestQuess = () => {
-        let bestQuess : string | undefined = undefined;
-        if( !gameState.previousQuesses ) return;
+        let bestQuess: string | undefined = undefined;
+        if (!gameState.previousQuesses) return;
 
-        gameState.previousQuesses.forEach( quess => {
+        gameState.previousQuesses.forEach(quess => {
             const revealStr = getRevealedQuess(quess.text);
-            if( !bestQuess || revealStr.length > bestQuess.length )
+            if (!bestQuess || revealStr.length > bestQuess.length)
                 bestQuess = revealStr;
         })
 
         return bestQuess;
     };
 
-    const getRevealedQuess = (quess : string) => {
+    const getRevealedQuess = (quess: string) => {
         let retStr = '';
-        for(let i = 0; i < quess.length && i < gameState.word.length; i++) {
-            if( gameState.word[i].toLowerCase() === quess[i].toLowerCase() )
+        for (let i = 0; i < quess.length && i < gameState.word.length; i++) {
+            if (gameState.word[i].toLowerCase() === quess[i].toLowerCase())
                 retStr += gameState.word[i];
             else
                 break;
         }
 
-        if( retStr.length === gameState.word.length )
+        if (retStr.length === gameState.word.length)
             return retStr;
         else
-            return retStr+"..";
+            return retStr + "..";
     }
 
-    const handleNewQuess = (quess : string) => {
+    const handleNewQuess = (quess: string) => {
         gameState.previousQuesses.push({
             text: quess,
             player: getCurrentPlayerName()
         });
-        gameState.isRoundDone = quess.toLocaleLowerCase() === gameState.word.toLocaleLowerCase();
-        updateGameState(gameState.previousQuesses, areStringsEqual(quess,gameState.word) ? 1 : undefined);
-    }
-
-    const areStringsEqual = (str1 : string, str2 : string) => {
-        return str1.toLowerCase() === str2.toLowerCase();
+        updateGameState(gameState.previousQuesses);
     }
 
     const handleImageDoubleClick = (imageSrc: string) => {
@@ -63,26 +58,32 @@ export const MainView = () => {
         setZoomedImgUrl(undefined);
     }
 
+    const isConcededButtonDisabled = () => {
+        const playerName = getCurrentPlayerName();
+        return gameState.playerStates.filter( pState => pState.name === playerName )[0]?.isConceded;
+    }
+    
     return (
         <MainDiv>
             <WordComponent
-                word={gameState.isRoundDone ? gameState.word : getRevealedBestQuess()} 
+                word={gameState.isRoundDone ? gameState.word : getRevealedBestQuess()}
                 isSolved={gameState.isRoundDone}
                 okClicked={setPlayerDone}></WordComponent>
             <HorizontalDiv>
                 <ImageComponent imageClicked={handleImageDoubleClick} imageUrls={gameState.imagesUrls}></ImageComponent>
                 <VerticalLayout>
                     <ChatComponent previousQuesses={gameState.previousQuesses}></ChatComponent>
-                    <LetterSelectComponent revealWord={(quess) => handleNewQuess(quess)} isEnabled={gameState.isRoundDone}></LetterSelectComponent>
+                    <LetterSelectComponent revealWord={(quess) => handleNewQuess(quess)} isDisabled={gameState.isRoundDone}></LetterSelectComponent>
                 </VerticalLayout>
             </HorizontalDiv>
-            
+
             <PlayerInfoContainer>
                 {
-                    gameState.playerStates.map( playerState => (
-                        <PlayerInfo isActive={false} name={playerState.name} points={playerState.points} ></PlayerInfo>   
+                    gameState.playerStates.map(playerState => (
+                        <PlayerInfo isActive={false} name={playerState.name} points={playerState.points} ></PlayerInfo>
                     ))
                 }
+                <ConcedeButton isConcedeBtnDisabled={isConcededButtonDisabled()} disabled={isConcededButtonDisabled()} onClick={setPlayerConceded}>Concede</ConcedeButton>
             </PlayerInfoContainer>
             {zoomedImgUrl ? <ImageWindow imageClicked={handleImageSingleClick} imageSrc={zoomedImgUrl}></ImageWindow> : <></>}
         </MainDiv>
@@ -113,4 +114,14 @@ const VerticalLayout = styled.div`
 const PlayerInfoContainer = styled.div`
     position: fixed;
     right: 30px;
+`;
+
+const ConcedeButton = styled.button`
+background: #640404;
+padding: 10px;
+margin-left: 10px;
+border-radius: 3px;
+color: white;
+border: ${props => props.isConcedeBtnDisabled ? '2px solid green' : '2px solid white'};
+font-weight: bold;
 `;

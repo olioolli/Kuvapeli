@@ -34,7 +34,7 @@ const initBrowser = async () => {
         waitUntil: 'networkidle2',
     });
 
-    browserPage.on('console', msg => console.log('PAGE LOG:', msg.text()));
+    //browserPage.on('console', msg => console.log('PAGE LOG:', msg.text()));
 
     await browserPage.$$eval('button', buttons => {
         const button = buttons[3] as HTMLButtonElement;
@@ -62,26 +62,26 @@ const retrieveImages = async (word: string) => {
         const inputs = document.getElementsByTagName("input");
         inputs[0].value = word;
 
-        console.log("Location : " + location.href);
+        //console.log("Location : " + location.href);
 
         if (location.href.startsWith("https://www.google.com/search")) {
-            console.log("Already searched");
+            //console.log("Already searched");
             document.getElementsByTagName("button")[0].click();
         }
         else {
-            console.log("First search");
+            //console.log("First search");
             inputs[3].click();
         }
 
     }, word);
 
     const start = new Date().getTime();
-    console.log("waiting..");
+    //console.log("waiting..");
     await browserPage.waitForTimeout(2000);
 
     // Move to image search
     if( isFirstSearch ) {
-        console.log("First search, moving to image search...");
+        //console.log("First search, moving to image search...");
         await browserPage.evaluate(() => {
             try {
                 const a7 = document.getElementsByTagName("a")[7];
@@ -95,7 +95,7 @@ const retrieveImages = async (word: string) => {
             }
         });
 
-        console.log("waiting..");
+        //console.log("waiting..");
         await browserPage.waitForTimeout(1600);
     }
 
@@ -103,7 +103,7 @@ const retrieveImages = async (word: string) => {
 
     //await browserPage.waitForSelector('g-inner-card div div img');
     const totalWaittime = new Date().getTime() - start;
-    console.log("Waited for " + totalWaittime + "ms");
+    //console.log("Waited for " + totalWaittime + "ms");
 
     console.log("searching for images..");
 

@@ -2,6 +2,7 @@ export type PlayerState = {
     name: string;
     points: number;
     isDone: boolean;
+    isConceded: boolean;
 }
 
 export type PreviousQuess = {
@@ -52,7 +53,8 @@ export const createDummyGameState = (word: string): GameState => {
             {
                 name: "Olli",
                 points: 0,
-                isDone: false
+                isDone: false,
+                isConceded : false
             }
         ]
     }

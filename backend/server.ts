@@ -10,28 +10,32 @@ import { readDictionary } from './dictionaryScraper';
 
 let puzzles: WordImagePuzzle[] = [];
 let puzzleIdx = 0;
+let isPuzzleSetupInProgress = false;
 
-const setupNextPuzzle = () => {
+const setupNextPuzzle = async () => {
+    if( isPuzzleSetupInProgress ) return;
 
-    if (puzzleIdx === puzzles.length - 1) {
-        puzzleIdx = 0;
+    isPuzzleSetupInProgress = true;
+    if (puzzleIdx >= puzzles.length) {
         console.log("Puzzles done, retrieving more...");
-        retrieveMorePuzzles();
+        await retrieveMorePuzzles();
     }
 
+    console.log("Setting up puzzle with index: "+puzzleIdx);
     const puzzle = puzzles[puzzleIdx];
     gameState = createGameState(puzzle, gameState ? gameState.playerStates : []);
     puzzleIdx++;
 
+    isPuzzleSetupInProgress = false;
     return puzzle;
 }
 
-const retrieveMorePuzzles = () => {
-    retrievePuzzles().then(result => {
-        puzzles = result;
-        setupNextPuzzle();
-    });
+const retrieveMorePuzzles = async () => {
+    const result = await retrievePuzzles();
+    puzzles = [...puzzles, ...result];
+    setupNextPuzzle();
 }
+
 retrieveMorePuzzles();
 
 
@@ -105,7 +109,7 @@ app.listen(PORT, () => {
         + 'on port http://localhost:' + PORT);
 })
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
     if (req.body.username) {
         if (!addUser(req.body.username)) {
             res.sendStatus(400);
@@ -113,7 +117,6 @@ app.post("/login", (req, res) => {
         }
         else {
             res.sendStatus(200);
-            handleStartNextRound();
             broadCastGameState();
             return;
         }
@@ -139,24 +142,34 @@ const updateGameState = (newState : GameState, sendingPlayerName : string) => {
     const newQuesses = newState.previousQuesses.filter( (newQuess) => {
         return gameState.previousQuesses.findIndex( quess => quess.player === newQuess.player && quess.text === newQuess.text ) === -1;
     });
-
     gameState.previousQuesses = gameState.previousQuesses.concat(newQuesses);
 
+    const correctNewQuess = newQuesses.filter( newQuess => newQuess.text.toLowerCase() === gameState.word.toLowerCase() )[0];
+    gameState.isRoundDone = gameState.isRoundDone || correctNewQuess ? true : false;
+
     const sendingPlayerState = newState.playerStates.filter( state => state.name === sendingPlayerName)[0];
-    const playerStateIdx = gameState.playerStates.findIndex( state => state.name === sendingPlayerName)
+    const playerStateIdx = gameState.playerStates.findIndex( state => state.name === sendingPlayerName);
+    if( correctNewQuess && correctNewQuess.player === sendingPlayerName )
+        sendingPlayerState.points += 1;
+
     gameState.playerStates[playerStateIdx] = sendingPlayerState;
-
-    gameState.isRoundDone = newState.isRoundDone;
-
+    checkForConcession();
 };
 
-app.post("/game", (req, res) => {
+const checkForConcession = () => {
+    if( gameState.isRoundDone ) return;
+
+    const isAllPlayersConceded = gameState.playerStates.filter( pState => pState.isConceded ).length === gameState.playerStates.length;
+    gameState.isRoundDone = isAllPlayersConceded;
+}
+
+app.post("/game", async (req, res) => {
     const newGameState = req.body.game;
     const sendingPlayerName = req.body.player;
     updateGameState(newGameState, sendingPlayerName);
 
     if (isAllPlayerDone())
-        handleStartNextRound();
+        await handleStartNextRound();
 
     broadCastGameState();
     res.status(200).json(gameState);
@@ -170,16 +183,16 @@ app.get("/users", (req, res) => {
     res.send(JSON.stringify(users));
 });
 
-app.get("/reset", (req, res) => {
+app.get("/reset", async (req, res) => {
 
-    gameState = createGameState(setupNextPuzzle(), []);
+    gameState = createGameState(await setupNextPuzzle(), []);
     users = [];
     broadCastGameState();
     res.send("Game reset");
 });
 
-app.get("/next", (req, res) => {
-    setupNextPuzzle()
+app.get("/next", async (req, res) => {
+    await setupNextPuzzle()
     broadCastGameState();
     res.send("Next");
 });
@@ -192,7 +205,7 @@ const addUser = (username: string) => {
     if (getUser(username))
         return true;
 
-    gameState.playerStates.push({ name: username, points: 0, isDone: false });
+    gameState.playerStates.push({ name: username, points: 0, isDone: false, isConceded: false });
 
     if (gameState.word === '') {
         gameState.word = getNextWord();
@@ -201,11 +214,14 @@ const addUser = (username: string) => {
     return true;
 }
 
-const handleStartNextRound = () => {
-    if (!isAllPlayerDone()) return;
+const handleStartNextRound = async () => {
+    if (gameState.isRoundDone && !isAllPlayerDone()) return;
 
-    setupNextPuzzle();
-    gameState.playerStates.forEach(state => state.isDone = false);
+    await setupNextPuzzle();
+    gameState.playerStates.forEach(state => {
+        state.isDone = false
+        state.isConceded = false;
+    });
     gameState.previousQuesses = [];
 }
 

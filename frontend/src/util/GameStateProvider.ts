@@ -9,16 +9,13 @@ export const useGameState = () => {
 
     const [gameState, setGameState ] = useState<GameState>(createDummyGameState("talo"));
 
-    const updateGameState = (newPreviousQuesses?: PreviousQuess[], currentPlayerPointIncrement? : number) => {
+    const updateGameState = (newPreviousQuesses?: PreviousQuess[]) => {
 
         const newState = copyGameState({
             ...gameState,
             previousQuesses : newPreviousQuesses ? newPreviousQuesses : gameState.previousQuesses,
             playerStates: gameState.playerStates
         });
-        
-        if( currentPlayerPointIncrement )
-            gameState.playerStates.filter( state => state.name === getCurrentPlayerName() )[0].points += currentPlayerPointIncrement;
 
         sendGameStateToBE(newState);
     }
@@ -26,6 +23,12 @@ export const useGameState = () => {
     const setPlayerDone = () => {
         const newState = copyGameState(gameState);
         newState.playerStates.filter( state => state.name === getCurrentPlayerName() )[0].isDone = true;
+        sendGameStateToBE(newState);
+    }
+
+    const setPlayerConceded = () => {
+        const newState = copyGameState(gameState);
+        newState.playerStates.filter( state => state.name === getCurrentPlayerName() )[0].isConceded = true;
         sendGameStateToBE(newState);
     }
 
@@ -59,6 +62,7 @@ export const useGameState = () => {
     return {
         gameState: gameState,
         updateGameState,
-        setPlayerDone
+        setPlayerDone,
+        setPlayerConceded
     };
 }
