@@ -49,28 +49,36 @@ export const retrievePuzzles = async (): Promise<WordImagePuzzle[]> => {
 
     let puzzles: WordImagePuzzle[] = [];
     await initBrowser();
-    for(let i = 0; i < 5; i++) {
+    
+    for(let i = 0; i < 3; i++) {
         const word = getRandomWord();
-        puzzles.push({ word: word, imageUrls: await retrieveImages(word) });    
+        const images = await retrieveImages(word);
+        if( images.length !== 4 )
+            puzzles.push({ word: word, imageUrls: images });    
+        else
+            i--;
     }
+
     return puzzles;
 }
 
 const retrieveImages = async (word: string) => {
 
     await browserPage.evaluate((word) => {
+
+        const isFirstSearch = !location.href.startsWith("https://www.google.com/search");
         const inputs = document.getElementsByTagName("input");
         inputs[0].value = word;
 
         //console.log("Location : " + location.href);
 
-        if (location.href.startsWith("https://www.google.com/search")) {
+        if (isFirstSearch) {
             //console.log("Already searched");
-            document.getElementsByTagName("button")[0].click();
+            inputs[3].click();
         }
         else {
             //console.log("First search");
-            inputs[3].click();
+            document.getElementsByTagName("button")[0].click();
         }
 
     }, word);
@@ -123,8 +131,6 @@ const retrieveImages = async (word: string) => {
     return imageUrls;
     //await browser.close();
 }
-
-let sentenceIdx = 0;
 
 export const getNextWord = () => {
     return "Talo";

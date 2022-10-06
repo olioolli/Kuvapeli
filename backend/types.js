@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createDummyGameState = exports.createGameState = void 0;
 var createGameState = function (puzzle, playerStates) {
     return {
-        word: puzzle.word,
+        word: puzzle ? puzzle.word : '',
         playerStates: playerStates,
         isRoundDone: false,
-        imagesUrls: puzzle.imageUrls,
+        imagesUrls: puzzle ? puzzle.imageUrls : [],
         previousQuesses: [],
     };
 };

@@ -67,7 +67,7 @@ var initBrowser = function () { return __awaiter(void 0, void 0, void 0, functio
                     return [2 /*return*/];
                 return [4 /*yield*/, puppeteer_1.default.launch({
                         args: ["--no-sandbox", "--disable-setuid-sandbox"],
-                        'ignoreHTTPSErrors': true, 'headless': true, env: { LANGUAGE: "fi_fi" }
+                        'ignoreHTTPSErrors': true, 'headless': false, env: { LANGUAGE: "fi_fi" }
                     })];
             case 1:
                 browser = _a.sent();
@@ -79,39 +79,42 @@ var initBrowser = function () { return __awaiter(void 0, void 0, void 0, functio
                     })];
             case 3:
                 _a.sent();
-                browserPage.on('console', function (msg) { return console.log('PAGE LOG:', msg.text()); });
+                //browserPage.on('console', msg => console.log('PAGE LOG:', msg.text()));
                 return [4 /*yield*/, browserPage.$$eval('button', function (buttons) {
                         var button = buttons[3];
-                        button.click();
+                        if (button)
+                            button.click();
                     })];
             case 4:
+                //browserPage.on('console', msg => console.log('PAGE LOG:', msg.text()));
                 _a.sent();
                 return [2 /*return*/];
         }
     });
 }); };
 var retrievePuzzles = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var puzzles, i, word, _a, _b;
-    var _c;
-    return __generator(this, function (_d) {
-        switch (_d.label) {
+    var puzzles, i, word, images;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
             case 0:
                 loadDictionary();
                 puzzles = [];
                 return [4 /*yield*/, initBrowser()];
             case 1:
-                _d.sent();
+                _a.sent();
                 i = 0;
-                _d.label = 2;
+                _a.label = 2;
             case 2:
-                if (!(i < 5)) return [3 /*break*/, 5];
+                if (!(i < 3)) return [3 /*break*/, 5];
                 word = getRandomWord();
-                _b = (_a = puzzles).push;
-                _c = { word: word };
                 return [4 /*yield*/, retrieveImages(word)];
             case 3:
-                _b.apply(_a, [(_c.imageUrls = _d.sent(), _c)]);
-                _d.label = 4;
+                images = _a.sent();
+                if (images.length !== 4)
+                    puzzles.push({ word: word, imageUrls: images });
+                else
+                    i--;
+                _a.label = 4;
             case 4:
                 i++;
                 return [3 /*break*/, 2];
@@ -125,27 +128,29 @@ var retrieveImages = function (word) { return __awaiter(void 0, void 0, void 0, 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, browserPage.evaluate(function (word) {
+                    var isFirstSearch = !location.href.startsWith("https://www.google.com/search");
                     var inputs = document.getElementsByTagName("input");
                     inputs[0].value = word;
-                    console.log("Location : " + location.href);
-                    if (location.href.startsWith("https://www.google.com/search")) {
-                        console.log("Already searched");
-                        document.getElementsByTagName("button")[0].click();
+                    //console.log("Location : " + location.href);
+                    if (isFirstSearch) {
+                        //console.log("Already searched");
+                        inputs[3].click();
                     }
                     else {
-                        console.log("First search");
-                        inputs[3].click();
+                        //console.log("First search");
+                        document.getElementsByTagName("button")[0].click();
                     }
                 }, word)];
             case 1:
                 _a.sent();
                 start = new Date().getTime();
-                console.log("waiting..");
+                //console.log("waiting..");
                 return [4 /*yield*/, browserPage.waitForTimeout(2000)];
             case 2:
+                //console.log("waiting..");
                 _a.sent();
                 if (!isFirstSearch) return [3 /*break*/, 5];
-                console.log("First search, moving to image search...");
+                //console.log("First search, moving to image search...");
                 return [4 /*yield*/, browserPage.evaluate(function () {
                         try {
                             var a7 = document.getElementsByTagName("a")[7];
@@ -159,16 +164,18 @@ var retrieveImages = function (word) { return __awaiter(void 0, void 0, void 0, 
                         }
                     })];
             case 3:
+                //console.log("First search, moving to image search...");
                 _a.sent();
-                console.log("waiting..");
+                //console.log("waiting..");
                 return [4 /*yield*/, browserPage.waitForTimeout(1600)];
             case 4:
+                //console.log("waiting..");
                 _a.sent();
                 _a.label = 5;
             case 5:
                 isFirstSearch = false;
                 totalWaittime = new Date().getTime() - start;
-                console.log("Waited for " + totalWaittime + "ms");
+                //console.log("Waited for " + totalWaittime + "ms");
                 console.log("searching for images..");
                 return [4 /*yield*/, browserPage.evaluate(function () {
                         var _a, _b;

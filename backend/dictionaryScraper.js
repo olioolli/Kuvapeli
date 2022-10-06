@@ -156,5 +156,6 @@ var getUrl = function (letter, page) {
 var letters = [
     //    'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','z','ä','ö'
     // -f
-    'l'
+    'n'
 ];
+(0, exports.readDictionary)();

@@ -6,37 +6,45 @@ import * as WebSocket from 'ws';
 import * as http from 'http';
 import { createDummyGameState, createGameState, GameState, WordImagePuzzle } from './types';
 import { getNextWord, retrievePuzzles } from './dataFetcher';
-import { readDictionary } from './dictionaryScraper';
 
 let puzzles: WordImagePuzzle[] = [];
 let puzzleIdx = 0;
-let isPuzzleSetupInProgress = false;
+let puzzleFetchInProgress = false;
+
 
 const setupNextPuzzle = async () => {
-    if( isPuzzleSetupInProgress ) return;
+    if( puzzleFetchInProgress ) return;
 
-    isPuzzleSetupInProgress = true;
-    if (puzzleIdx >= puzzles.length) {
+    if (puzzleIdx >= puzzles.length - 1) {
         console.log("Puzzles done, retrieving more...");
-        await retrieveMorePuzzles();
+        retrieveMorePuzzles();
     }
+
+    if( puzzleIdx >= puzzles.length ) return;
 
     console.log("Setting up puzzle with index: "+puzzleIdx);
     const puzzle = puzzles[puzzleIdx];
     gameState = createGameState(puzzle, gameState ? gameState.playerStates : []);
     puzzleIdx++;
 
-    isPuzzleSetupInProgress = false;
     return puzzle;
 }
 
 const retrieveMorePuzzles = async () => {
-    const result = await retrievePuzzles();
-    puzzles = [...puzzles, ...result];
-    setupNextPuzzle();
+    puzzleFetchInProgress = true;
+    try {
+        const result = await retrievePuzzles();
+        puzzles = [...puzzles, ...result];
+    }
+    catch(err) {
+        console.log("Error while retrieving puzzles:",err);
+    }
+    puzzleFetchInProgress = false;
 }
 
-retrieveMorePuzzles();
+retrieveMorePuzzles().then( () => {
+    setupNextPuzzle();
+});
 
 
 //readDictionary();
