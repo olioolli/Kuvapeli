@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useGameState } from '../util/GameStateProvider';
 import { getCurrentPlayerName } from '../util/utils';
@@ -79,8 +79,8 @@ export const MainView = () => {
 
             <PlayerInfoContainer>
                 {
-                    gameState.playerStates.map(playerState => (
-                        <PlayerInfo isActive={false} name={playerState.name} points={playerState.points} ></PlayerInfo>
+                    gameState.playerStates.map( playerState => (
+                        <PlayerInfo key={playerState.name} isActive={false} name={playerState.name} points={playerState.points} ></PlayerInfo>
                     ))
                 }
                 <ConcedeButton isConcedeBtnDisabled={isConcededButtonDisabled()} disabled={isConcededButtonDisabled()} onClick={setPlayerConceded}>Concede</ConcedeButton>

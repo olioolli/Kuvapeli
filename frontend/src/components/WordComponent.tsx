@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 export type WordComponentProps = {
@@ -21,7 +21,7 @@ export const WordComponent = (props : WordComponentProps) => {
     useEffect( () => {
         if( !props.isSolved )
             setOkClicked(false);
-    });
+    },[setOkClicked, props.isSolved]);
 
     return (
         <MainDiv>

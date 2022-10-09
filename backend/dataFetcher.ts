@@ -53,7 +53,7 @@ export const retrievePuzzles = async (): Promise<WordImagePuzzle[]> => {
     for(let i = 0; i < 3; i++) {
         const word = getRandomWord();
         const images = await retrieveImages(word);
-        if( images.length !== 4 )
+        if( images.length === 4 )
             puzzles.push({ word: word, imageUrls: images });    
         else
             i--;

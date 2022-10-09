@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { PreviousQuess } from '../types/types';
 
-export type ChatComponent = {
+export type ChatComponentProps = {
     previousQuesses : PreviousQuess[]
 }
 
-export const ChatComponent = (props : ChatComponent) => {
+export const ChatComponent = (props : ChatComponentProps) => {
 
     const mainDiv = useRef<HTMLDivElement>();
 
@@ -17,8 +17,8 @@ export const ChatComponent = (props : ChatComponent) => {
     return (
         <MainDiv ref={mainDiv}>
             {
-                props.previousQuesses.map( quess => (
-                    <QuessDiv>{quess.player+": "+quess.text}</QuessDiv>
+                props.previousQuesses.map( (quess, idx) => (
+                    <QuessDiv key={idx}>{quess.player+": "+quess.text}</QuessDiv>
                 ))
             }
         </MainDiv>

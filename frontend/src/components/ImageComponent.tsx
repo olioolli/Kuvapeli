@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 export type WordComponentProps = {
@@ -16,8 +16,8 @@ export const ImageComponent = (props: WordComponentProps) => {
     return (
         <MainDiv>
             {
-                props.imageUrls.map( url => (
-                    <Image onClick={handleImageClick} src={url}></Image>
+                props.imageUrls.map( (url,idx) => (
+                    <Image key={idx} onClick={handleImageClick} src={url}></Image>
                 ))
             }
         </MainDiv>

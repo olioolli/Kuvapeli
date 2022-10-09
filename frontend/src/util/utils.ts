@@ -2,11 +2,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { BE_URL } from "../state";
 
-
-export const fetchNews = () => {
-    
-}
-
 export const getCurrentPlayerName = (): string => {
     return document.cookie;
 }
@@ -17,7 +12,7 @@ export const isLoggedIn = () => {
 
     axios.get(BE_URL+ "/isLoggedIn?username="+document.cookie)
         .then( (response) => {
-            if( response.status == 200 ) {
+            if( response.status === 200 ) {
                 const data = response.data;
                 if(data.isLoggedIn)
                     window.location.replace("game");
@@ -45,7 +40,7 @@ export const login = (username: string) => {
     }
     ).then((response) => {
 
-        if (response.status == 200) {
+        if (response.status === 200) {
             document.cookie = username;
             window.location.replace("game");
             return true;

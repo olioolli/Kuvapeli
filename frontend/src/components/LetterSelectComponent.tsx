@@ -57,8 +57,3 @@ const WordInput = styled.input`
     padding-left: 10px;
     width: 100%;
 `;
-
-const Button = styled.button`
-    height: 66px;
-    margin-left: 1px;
-`;

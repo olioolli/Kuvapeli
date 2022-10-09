@@ -1,7 +1,7 @@
 import axios from "axios";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BE_URL, BE_WS_URL } from "../state";
-import { PlayerState, GameState, copyGameState, createDummyGameState, PreviousQuess } from "../types/types";
+import { GameState, copyGameState, createDummyGameState, PreviousQuess } from "../types/types";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import { getCurrentPlayerName } from "./utils";
 
