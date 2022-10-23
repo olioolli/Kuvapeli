@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { PreviousQuess } from '../types/types';
+import { PlayerNameToColor, PreviousQuess } from '../types/types';
 
 export type ChatComponentProps = {
     previousQuesses : PreviousQuess[]
+    playerColors: PlayerNameToColor; 
 }
 
 export const ChatComponent = (props : ChatComponentProps) => {
@@ -18,12 +19,19 @@ export const ChatComponent = (props : ChatComponentProps) => {
         <MainDiv ref={mainDiv}>
             {
                 props.previousQuesses.map( (quess, idx) => (
-                    <QuessDiv key={idx}>{quess.player+": "+quess.text}</QuessDiv>
+                    <QuessDiv key={idx}>
+                        <PlayerDiv style={ { color: props.playerColors[quess.player]} }>{quess.player+":"}</PlayerDiv>
+                        {quess.text}
+                    </QuessDiv>
                 ))
             }
         </MainDiv>
     );
 }
+
+const PlayerDiv = styled.div`
+color: ${props => props.color};
+`;
 
 const MainDiv = styled.div`
     color: white;
@@ -33,9 +41,9 @@ const MainDiv = styled.div`
     flex-direction: column;
     align-items: center;
     overflow: auto;
-    height: 600px;
+    height: 508px;
 `;
 
 const QuessDiv = styled.div`
-
+display: flex;
 `;

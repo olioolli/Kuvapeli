@@ -3,12 +3,21 @@ export type PlayerState = {
     points: number;
     isDone: boolean;
     isConceded: boolean;
+    color: string;
 }
+
+export type PlayerNameToColor = Record<string,string>;
 
 export type PreviousQuess = {
     text: string;
     player: string;
 }
+
+export type timeBasedLetterReveal = {
+    revealedLetterCount : number;
+    revealedString : string;
+}
+
 
 export type GameState = {
     isRoundDone: boolean;
@@ -16,6 +25,8 @@ export type GameState = {
     previousQuesses: PreviousQuess[];
     imagesUrls: string[];
     playerStates: PlayerState[];
+    roundStartTime: number;
+    secondLeftInRound: number;
 }
 
 export const copyGameState = (gameState: GameState) => {
@@ -28,7 +39,9 @@ export const copyGameState = (gameState: GameState) => {
         word: gameState.word,
         isRoundDone: gameState.isRoundDone,
         imagesUrls,
-        previousQuesses
+        previousQuesses,
+        roundStartTime: gameState.roundStartTime,
+        secondLeftInRound: gameState.secondLeftInRound,
     };
 }
 
@@ -54,8 +67,11 @@ export const createDummyGameState = (word: string): GameState => {
                 name: "Olli",
                 points: 0,
                 isDone: false,
-                isConceded : false
+                isConceded : false,
+                color: 'white'
             }
-        ]
+        ],
+        roundStartTime: 0,
+        secondLeftInRound: 0
     }
 }

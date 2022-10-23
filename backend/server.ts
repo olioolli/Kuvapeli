@@ -11,6 +11,12 @@ let puzzles: WordImagePuzzle[] = [];
 let puzzleIdx = 0;
 let puzzleFetchInProgress = false;
 
+setInterval( () => {
+    if( puzzleFetchInProgress || gameState.isRoundDone || gameState.secondLeftInRound === 0 ) return;
+
+    gameState.secondLeftInRound--;
+    broadCastGameState();
+},1000);
 
 const setupNextPuzzle = async () => {
     if( puzzleFetchInProgress ) return;
@@ -209,11 +215,22 @@ app.get("/puzzles", (req, res) => {
     res.send(JSON.stringify(puzzles));
 });
 
+const playerColors = [
+    "Red", "Green", "Cyan", "Yellow","White"
+];
+
+const getNextPlayerColor = (playerIdx : number) => {
+    if( playerIdx < playerColors.length )
+        return playerColors[playerIdx];
+    else
+        return "white";
+}
+
 const addUser = (username: string) => {
     if (getUser(username))
         return true;
 
-    gameState.playerStates.push({ name: username, points: 0, isDone: false, isConceded: false });
+    gameState.playerStates.push({ name: username, points: 0, isDone: false, isConceded: false,  color: getNextPlayerColor(gameState.playerStates.length)});
 
     if (gameState.word === '') {
         gameState.word = getNextWord();

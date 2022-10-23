@@ -3,6 +3,7 @@ export type PlayerState = {
     points: number;
     isDone: false;
     isConceded: false;
+    color: string;
 }
 
 export type PreviousQuess = {
@@ -16,6 +17,8 @@ export type GameState = {
     previousQuesses: PreviousQuess[];
     imagesUrls: string[];
     playerStates: PlayerState[];
+    roundStartTime: number;
+    secondLeftInRound: number;
 }
 
 export type WordImagePuzzle = {
@@ -31,6 +34,8 @@ export const createGameState = (puzzle : WordImagePuzzle | undefined, playerStat
         isRoundDone: false,
         imagesUrls : puzzle ? puzzle.imageUrls : [],
         previousQuesses: [],
+        roundStartTime: new Date().getTime(),
+        secondLeftInRound: 120,
     };
 }
 
@@ -46,6 +51,8 @@ export const createDummyGameState = (word: string): GameState => {
             "https://static.visitestonia.com/images/3806446/1600_900_false_false_d9165ba89e3eb47b9e66a12e697c9678.jpg",
             "https://is.mediadelivery.fi/img/468/01defcd430dc896cbc64541bdd195e6b.jpg"
         ],
-        playerStates: []
+        playerStates: [],
+        roundStartTime: 0,
+        secondLeftInRound: 120,
     }
 }

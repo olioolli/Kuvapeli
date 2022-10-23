@@ -3,14 +3,12 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect
 } from "react-router-dom";
 import styled from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
-import { isLoggedIn, login } from './util/utils';
+import { login } from './util/utils';
 import axios from 'axios';
 import { BE_URL } from './state';
-import { toast } from 'react-toastify';
 import { MainView } from './components/MainView';
 
 function App() {
@@ -23,7 +21,7 @@ function App() {
       setIsUserLoggedIn(false);
 
     axios.get(BE_URL + "/isLoggedIn?username=" + document.cookie).then((response) => {
-      if (response.status == 200) {
+      if (response.status === 200) {
         const data = response.data;
         console.log("IS logged in user: "+document.cookie);
         console.log("GOT RESP: "+data.isLoggedIn);
@@ -74,11 +72,6 @@ const PlayerSelectView = () => {
 
 }
 
-const Image = styled.img`
-border: 2px solid #54575b;
-border-radius: 2px;
-`;
-
 const LoginMainDiv = styled.div`
 width: 100%;
 height: 100%;
@@ -115,15 +108,6 @@ const TextField = styled.input`
     background: #0e1d21;
     color: white;
     text-align: center;
-`;
-
-const TitleText = styled.p`
-font-size: 60px;
-color: #386383;
-`;
-
-const PlayerLink = styled.a`
-    font-size: 20px;
 `;
 
 const PlayerSelectContainer = styled.div`
