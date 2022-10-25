@@ -37,7 +37,8 @@ const PlayerContainer = styled.div`
       padding-left: 15px;
       display: flex;
       flex-direction: column;
-      background-color: #636a3f;
+      background-color: #ffffff;
+      border-radius: 3px;
     & > div {
       display: inline-block;
     }
@@ -47,6 +48,4 @@ const FlexDivRow = styled.div`
     display: flex;
     flex-direction: row;
     padding: 10px;
-    border-top: 1px solid white;
-    border-top-style: inset;
     `;

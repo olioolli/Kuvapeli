@@ -1,4 +1,3 @@
-import { decode } from 'html-entities';
 import puppeteer from 'puppeteer';
 import { WordImagePuzzle } from './types';
 import fs from 'fs';
@@ -60,6 +59,11 @@ export const retrievePuzzles = async (): Promise<WordImagePuzzle[]> => {
     }
 
     return puzzles;
+}
+
+export const closeBrowser = () => {
+    console.log("Closing browser..");
+    browser.close();
 }
 
 const retrieveImages = async (word: string) => {

@@ -11,6 +11,11 @@ export type PreviousQuess = {
     player: string;
 }
 
+export type timeBasedLetterReveal = {
+    revealedLetterCount : number;
+    revealedString : string;
+}
+
 export type GameState = {
     isRoundDone: boolean;
     word: string;
@@ -19,6 +24,7 @@ export type GameState = {
     playerStates: PlayerState[];
     roundStartTime: number;
     secondLeftInRound: number;
+    revealedWord: string;
 }
 
 export type WordImagePuzzle = {
@@ -36,6 +42,7 @@ export const createGameState = (puzzle : WordImagePuzzle | undefined, playerStat
         previousQuesses: [],
         roundStartTime: new Date().getTime(),
         secondLeftInRound: 120,
+        revealedWord: ''
     };
 }
 
@@ -54,5 +61,6 @@ export const createDummyGameState = (word: string): GameState => {
         playerStates: [],
         roundStartTime: 0,
         secondLeftInRound: 120,
+        revealedWord: ''
     }
 }

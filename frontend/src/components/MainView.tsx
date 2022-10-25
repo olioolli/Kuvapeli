@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { PlayerNameToColor, timeBasedLetterReveal } from '../types/types';
+import { PlayerNameToColor } from '../types/types';
 import { useGameState } from '../util/GameStateProvider';
 import { getCurrentPlayerName } from '../util/utils';
 import { ChatComponent } from './ChatComponent';
@@ -8,76 +8,13 @@ import { ImageComponent } from './ImageComponent';
 import { ImageWindow } from './ImageWindow';
 import { LetterSelectComponent } from './LetterSelectComponent';
 import { PlayerInfo } from './PlayerInfoComponent';
+import { TimerComponent } from './TimerComponent';
 import { WordComponent } from './WordComponent';
 
 export const MainView = () => {
 
     const { gameState, updateGameState, setPlayerDone, setPlayerConceded } = useGameState();
     const [zoomedImgUrl, setZoomedImgUrl] = useState<string | undefined>();
-    //const [timeLeftInRound, setTimeLeftInRound] = useState(120);
-    //const [timeUpdateInterval, setTimeUpdateInterval] = useState<NodeJS.Timeout>();
-
-    /*
-    useEffect( () => {
-        
-        if( !timeUpdateInterval ) {
-            const iv = setInterval( () => setTimeLeftInRound(timeLeftInRound => timeLeftInRound !== 0 ? timeLeftInRound-1 : 0),1000);
-            setTimeUpdateInterval(iv);
-        }
-
-        setTimeLeftInRound(gameState.secondLeftInRound);
-    },[gameState.secondLeftInRound,timeUpdateInterval]);
-*/
-    const getRevealedBestQuess = () => {
-
-        let bestQuess = revealLettersBasedOnTime().revealedString;
-
-        if (!gameState.previousQuesses) return bestQuess;
-
-        gameState.previousQuesses.forEach(quess => {
-            const revealStr = getRevealedQuess(quess.text);
-            if (revealStr.length > bestQuess.length)
-                if( bestQuess.length < revealStr.length )
-                    bestQuess = revealStr;
-        })
-
-        return bestQuess;
-    };
-    
-    const revealLettersBasedOnTime = () : timeBasedLetterReveal => {
-        const percentageOfTime = (120-gameState.secondLeftInRound) / 120; // TODO: fix hardcoded max round time
-        const lettersToBeRevealed = Math.round(gameState.word.length * percentageOfTime);
-        const revealedString = revealLetters( (word,i) => i <= lettersToBeRevealed );
-        return {
-            revealedString,
-            revealedLetterCount : revealLetters.length
-        }
-    };
-
-    const revealLetters = (doRevealLetter : (word: string, i : number) => boolean) => {
-        return Array.from(gameState.word).reduce( (revealed, letter,idx) => {
-            if( doRevealLetter(gameState.word,idx) )
-                revealed += letter;
-            return revealed;
-        },'');
-    };
-
-    const getRevealedQuess = (quess: string) => {
-
-        let revealedLetterCount = 0;
-        let retStr = revealLetters((word, i) => {
-            if( quess.length <= i || gameState.word.length <= i ) return false;
-            
-            const doReveal = gameState.word[i].toLowerCase() === quess[i].toLowerCase()
-            if( doReveal ) revealedLetterCount++;
-            return doReveal;
-        });
-
-        if (retStr.length === gameState.word.length)
-            return retStr;
-        else
-            return retStr + "..";
-    }
 
     const handleNewQuess = (quess: string) => {
         gameState.previousQuesses.push({
@@ -97,35 +34,36 @@ export const MainView = () => {
 
     const isConcededButtonDisabled = () => {
         const playerName = getCurrentPlayerName();
-        return gameState.playerStates.filter( pState => pState.name === playerName )[0]?.isConceded;
+        return gameState.playerStates.filter(pState => pState.name === playerName)[0]?.isConceded;
     }
 
-    const getPlayerColors  = () => {
-        return gameState.playerStates.reduce<PlayerNameToColor>( (acc, pState) => {
-            return { ...acc, [pState.name]: pState.color};
-        },{});
+    const getPlayerColors = () => {
+        return gameState.playerStates.reduce<PlayerNameToColor>((acc, pState) => {
+            return { ...acc, [pState.name]: pState.color };
+        }, {});
     }
-    
+
     return (
         <MainDiv>
-            <WordComponent
-                word={gameState.isRoundDone ? gameState.word : getRevealedBestQuess()}
+            <WordLayout>
+                <WordComponent
+                word={gameState.revealedWord}
                 isSolved={gameState.isRoundDone}
                 okClicked={setPlayerDone}></WordComponent>
+                <TimerComponent timeLeftInSeconds={gameState.secondLeftInRound} />
+            </WordLayout>
             <HorizontalDiv>
                 <ImageComponent imageClicked={handleImageDoubleClick} imageUrls={gameState.imagesUrls}></ImageComponent>
                 <VerticalLayout>
-                    <ChatComponent previousQuesses={gameState.previousQuesses} playerColors={getPlayerColors()} ></ChatComponent>
-                    <LetterSelectComponent revealWord={(quess) => handleNewQuess(quess)} isDisabled={gameState.isRoundDone}></LetterSelectComponent>
+                    <ChatComponent correctWord={gameState.word} previousQuesses={gameState.previousQuesses} playerColors={getPlayerColors()} ></ChatComponent>
+                    <LetterSelectComponent revealWord={(quess) => handleNewQuess(quess)} 
+                    isDisabled={gameState.isRoundDone || gameState.secondLeftInRound === 0}></LetterSelectComponent>
                 </VerticalLayout>
             </HorizontalDiv>
 
             <PlayerInfoContainer>
-                <TimeDiv>
-                    {gameState.secondLeftInRound}
-                </TimeDiv>                
                 {
-                    gameState.playerStates.map( playerState => (
+                    gameState.playerStates.map(playerState => (
                         <PlayerInfo key={playerState.name} isActive={false} name={playerState.name} points={playerState.points} ></PlayerInfo>
                     ))
                 }
@@ -136,21 +74,18 @@ export const MainView = () => {
     );
 }
 
-const TimeDiv = styled.div`
-color: #ffeaea;
-padding: 10px;
-text-align: center;
-background: #142828;
-font-weight: bold;
-font-size: 16px;
-border: 1px inset white;
-`;
-
 const MainDiv = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     height: 90%;
+    justify-content: center;
+`;
+
+const WordLayout = styled.div`
+    display: flex;
+    flex-direction: row;
+    width: 810px;
     justify-content: center;
 `;
 
@@ -179,6 +114,11 @@ const VerticalLayout = styled.div`
 const PlayerInfoContainer = styled.div`
     position: fixed;
     right: 30px;
+    background: #0b242a;
+    padding-left: 9px;
+    padding-bottom: 11px;
+    border-top-left-radius: 8px;
+    border: 1px solid #5c5757;
 `;
 
 const ConcedeButton = styled.button`

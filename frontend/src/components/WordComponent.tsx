@@ -25,12 +25,12 @@ export const WordComponent = (props : WordComponentProps) => {
 
     return (
         <MainDiv>
-            <div>{props.word || ''}</div>
+            <div>{props.word ? props.isSolved ? props.word : props.word+".." : ''}</div>
             {props.isSolved ? 
-            <button 
+            <Button 
             disabled={isOkClicked} 
             style={ buttonStyle } 
-            onClick={handleOkClicked}>OK</button> : <></>}
+            onClick={handleOkClicked}>OK</Button> : <></>}
         </MainDiv>
     );
 }
@@ -42,4 +42,27 @@ const MainDiv = styled.div`
     width: 30%;
     display: flex;
     justify-content: center;
+    border: 1px solid #5c5757;
+    background: #0b242a;
+    border-radius: 5px;
+    width: 400px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+`;
+
+const Button = styled.div`
+
+margin-left: 10px;
+background: #089520;
+border: 1px solid black;
+border-radius: 5px;
+font-size: 12px;
+height: 14px;
+padding-top: 2px;
+padding-bottom: 4px;
+padding-left: 3px;
+padding-right: 5px; 
+    &:hover {
+        opacity: 0.5;
+    }
 `;

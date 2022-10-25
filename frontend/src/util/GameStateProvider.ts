@@ -14,7 +14,7 @@ export const useGameState = () => {
         const newState = copyGameState({
             ...gameState,
             previousQuesses : newPreviousQuesses ? newPreviousQuesses : gameState.previousQuesses,
-            playerStates: gameState.playerStates
+            playerStates: gameState.playerStates,
         });
 
         sendGameStateToBE(newState);

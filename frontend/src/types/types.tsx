@@ -13,12 +13,6 @@ export type PreviousQuess = {
     player: string;
 }
 
-export type timeBasedLetterReveal = {
-    revealedLetterCount : number;
-    revealedString : string;
-}
-
-
 export type GameState = {
     isRoundDone: boolean;
     word: string;
@@ -27,6 +21,7 @@ export type GameState = {
     playerStates: PlayerState[];
     roundStartTime: number;
     secondLeftInRound: number;
+    revealedWord: string;
 }
 
 export const copyGameState = (gameState: GameState) => {
@@ -42,6 +37,7 @@ export const copyGameState = (gameState: GameState) => {
         previousQuesses,
         roundStartTime: gameState.roundStartTime,
         secondLeftInRound: gameState.secondLeftInRound,
+        revealedWord: gameState.revealedWord
     };
 }
 
@@ -72,6 +68,7 @@ export const createDummyGameState = (word: string): GameState => {
             }
         ],
         roundStartTime: 0,
-        secondLeftInRound: 0
+        secondLeftInRound: 0,
+        revealedWord: ''
     }
 }

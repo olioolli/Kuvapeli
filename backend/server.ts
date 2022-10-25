@@ -1,11 +1,11 @@
 // Importing module
 import express from 'express';
-import { send } from 'process';
 import cors from 'cors';
 import * as WebSocket from 'ws';
 import * as http from 'http';
-import { createDummyGameState, createGameState, GameState, WordImagePuzzle } from './types';
-import { getNextWord, retrievePuzzles } from './dataFetcher';
+import { createGameState, WordImagePuzzle } from './types';
+import { closeBrowser, getNextWord, retrievePuzzles } from './dataFetcher';
+import { gameState, setGameState, updateGameState, updateRevealedState } from './gameStateHandler';
 
 let puzzles: WordImagePuzzle[] = [];
 let puzzleIdx = 0;
@@ -15,8 +15,14 @@ setInterval( () => {
     if( puzzleFetchInProgress || gameState.isRoundDone || gameState.secondLeftInRound === 0 ) return;
 
     gameState.secondLeftInRound--;
+    if( gameState.secondLeftInRound === 0 )
+        gameState.isRoundDone = true;
+
+    updateRevealedState();
     broadCastGameState();
 },1000);
+
+process.on('exit', closeBrowser);
 
 const setupNextPuzzle = async () => {
     if( puzzleFetchInProgress ) return;
@@ -30,7 +36,7 @@ const setupNextPuzzle = async () => {
 
     console.log("Setting up puzzle with index: "+puzzleIdx);
     const puzzle = puzzles[puzzleIdx];
-    gameState = createGameState(puzzle, gameState ? gameState.playerStates : []);
+    setGameState(createGameState(puzzle, gameState ? gameState.playerStates : []));
     puzzleIdx++;
 
     return puzzle;
@@ -70,8 +76,6 @@ const wss = new WebSocket.Server({ server });
 interface ExtWebSocket extends WebSocket {
     isAlive: boolean;
 }
-
-let gameState: GameState = createDummyGameState("af");
 
 wss.on('connection', (ws: ExtWebSocket) => {
 
@@ -149,34 +153,6 @@ app.get("/isLoggedIn", (req, res) => {
     }
 });
 
-const updateGameState = (newState : GameState, sendingPlayerName : string) => {
-    if( gameState.isRoundDone && !newState.isRoundDone )
-        newState.isRoundDone = true;
-
-    const newQuesses = newState.previousQuesses.filter( (newQuess) => {
-        return gameState.previousQuesses.findIndex( quess => quess.player === newQuess.player && quess.text === newQuess.text ) === -1;
-    });
-    gameState.previousQuesses = gameState.previousQuesses.concat(newQuesses);
-
-    const correctNewQuess = newQuesses.filter( newQuess => newQuess.text.toLowerCase() === gameState.word.toLowerCase() )[0];
-    gameState.isRoundDone = gameState.isRoundDone || correctNewQuess ? true : false;
-
-    const sendingPlayerState = newState.playerStates.filter( state => state.name === sendingPlayerName)[0];
-    const playerStateIdx = gameState.playerStates.findIndex( state => state.name === sendingPlayerName);
-    if( correctNewQuess && correctNewQuess.player === sendingPlayerName )
-        sendingPlayerState.points += 1;
-
-    gameState.playerStates[playerStateIdx] = sendingPlayerState;
-    checkForConcession();
-};
-
-const checkForConcession = () => {
-    if( gameState.isRoundDone ) return;
-
-    const isAllPlayersConceded = gameState.playerStates.filter( pState => pState.isConceded ).length === gameState.playerStates.length;
-    gameState.isRoundDone = isAllPlayersConceded;
-}
-
 app.post("/game", async (req, res) => {
     const newGameState = req.body.game;
     const sendingPlayerName = req.body.player;
@@ -199,7 +175,7 @@ app.get("/users", (req, res) => {
 
 app.get("/reset", async (req, res) => {
 
-    gameState = createGameState(await setupNextPuzzle(), []);
+    setGameState(createGameState(await setupNextPuzzle(), []));
     users = [];
     broadCastGameState();
     res.send("Game reset");
