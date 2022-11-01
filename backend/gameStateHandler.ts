@@ -14,7 +14,7 @@ const getRevealedBestQuess = () => {
 
     gameState.previousQuesses.forEach(quess => {
         const revealStr = getRevealedQuess(quess.text);
-        if (revealStr.length > bestQuess.length)
+        if (revealStr === gameState.word || revealStr.length > bestQuess.length)
             if (bestQuess.length < revealStr.length)
                 bestQuess = revealStr;
     })
@@ -33,11 +33,13 @@ const revealLettersBasedOnTime = (): timeBasedLetterReveal => {
 };
 
 const revealLetters = (doRevealLetter: (word: string, i: number) => boolean) => {
-    return Array.from(gameState.word).reduce((revealed, letter, idx) => {
-        if (doRevealLetter(gameState.word, idx))
-            revealed += letter;
-        return revealed;
-    }, '');
+    let revealed = '';
+    for(let i = 0; i < gameState.word.length; i++)
+        if( doRevealLetter(gameState.word,i) )
+            revealed += gameState.word[i];
+        else
+            return revealed;
+    return revealed;
 };
 
 const getRevealedQuess = (quess: string) => {
@@ -51,10 +53,7 @@ const getRevealedQuess = (quess: string) => {
         return doReveal;
     });
 
-    if (retStr.length === gameState.word.length)
-        return retStr;
-    else
-        return retStr + "..";
+    return retStr;
 }
 
 export const updateRevealedState = () => {
